@@ -310,7 +310,12 @@ function getAnyResult(quorum: number, results: Array<TallyResult>): undefined | 
     return undefined;
 }
 
-function getFuzzyMode(quorum: number, results: Array<TallyResult>): undefined | number {
+function getFuzzyMode(quorum: number, results: Array<TallyResult>): undefined | number | Error {
+    // If every result is an error, don't getNumber
+    if (results.every((r) => r.value instanceof Error)) {
+        return getMedian(quorum, results) as Error;
+    }
+
     if (quorum === 1) { return getNumber(<bigint>getMedian(quorum, results), "%internal"); }
 
     const tally: Map<number, { result: number, weight: number }> = new Map();
@@ -321,6 +326,7 @@ function getFuzzyMode(quorum: number, results: Array<TallyResult>): undefined | 
     };
 
     for (const { weight, value } of results) {
+        if (value instanceof Error) { continue; }
         const r = getNumber(value);
         add(r - 1, weight);
         add(r, weight);
@@ -486,6 +492,21 @@ export class FallbackProvider extends AbstractProvider {
         return null;
     }
 
+    #hasNextConfig(running: Set<RunnerState>): boolean {
+        for (const config of this.#configs) {
+            if (config._lastFatalError) { continue; }
+            let found = false;
+            for (const runner of running) {
+                if (runner.config === config) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) { return true; }
+        }
+        return false;
+    }
+
     // Adds a new runner (if available) to running.
     #addRunner(running: Set<RunnerState>, req: PerformActionRequest): null | RunnerState {
         const config = this.#getNextConfig(running);
@@ -505,6 +526,7 @@ export class FallbackProvider extends AbstractProvider {
         runner.perform = (async () => {
             try {
                 config.requests++;
+                await stall(1); // ensures `perform` is cleared only after it is set
                 const result = await this._translatePerform(config.provider, req);
                 runner.result = { result };
             } catch (error: any) {
@@ -600,6 +622,7 @@ export class FallbackProvider extends AbstractProvider {
                 // a little drift between block heights
                 const mode = getFuzzyMode(this.quorum, results);
                 if (mode === undefined) { return undefined; }
+                if (mode instanceof Error) { return mode; }
                 if (mode > this.#height) { this.#height = mode; }
                 return this.#height;
             }
@@ -665,15 +688,22 @@ export class FallbackProvider extends AbstractProvider {
             newRunners++;
         }
 
+        // Wait for someone to either complete its perform or stall out
+        await Promise.race(interesting);
+
         // Check if we have reached quorum on a result (or error)
         const value = await this.#checkQuorum(running, req);
         if (value !== undefined) {
-            if (value instanceof Error) { throw value; }
-            return value;
+            if (value instanceof Error) {
+                if (this.#hasNextConfig(running)) {
+                    newRunners++;
+                } else {
+                    throw value;
+                }
+            } else {
+                return value;
+            }
         }
-
-        // Wait for someone to either complete its perform or stall out
-        await Promise.race(interesting);
 
         // Add any new runners, because a staller timed out or a result
         // or error response came in.
