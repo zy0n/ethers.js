@@ -174,6 +174,10 @@ function getAnyResult(quorum, results) {
     return undefined;
 }
 function getFuzzyMode(quorum, results) {
+    // If every result is an error, don't getNumber
+    if (results.every((r) => r.value instanceof Error)) {
+        return getMedian(quorum, results);
+    }
     if (quorum === 1) {
         return (0, index_js_1.getNumber)(getMedian(quorum, results), "%internal");
     }
@@ -184,6 +188,9 @@ function getFuzzyMode(quorum, results) {
         tally.set(result, t);
     };
     for (const { weight, value } of results) {
+        if (value instanceof Error) {
+            continue;
+        }
         const r = (0, index_js_1.getNumber)(value);
         add(r - 1, weight);
         add(r, weight);
@@ -331,6 +338,24 @@ class FallbackProvider extends abstract_provider_js_1.AbstractProvider {
         }
         return null;
     }
+    #hasNextConfig(running) {
+        for (const config of this.#configs) {
+            if (config._lastFatalError) {
+                continue;
+            }
+            let found = false;
+            for (const runner of running) {
+                if (runner.config === config) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return true;
+            }
+        }
+        return false;
+    }
     // Adds a new runner (if available) to running.
     #addRunner(running, req) {
         const config = this.#getNextConfig(running);
@@ -348,6 +373,7 @@ class FallbackProvider extends abstract_provider_js_1.AbstractProvider {
         runner.perform = (async () => {
             try {
                 config.requests++;
+                await stall(1); // ensures `perform` is cleared only after it is set
                 const result = await this._translatePerform(config.provider, req);
                 runner.result = { result };
             }
@@ -435,6 +461,9 @@ class FallbackProvider extends abstract_provider_js_1.AbstractProvider {
                 if (mode === undefined) {
                     return undefined;
                 }
+                if (mode instanceof Error) {
+                    return mode;
+                }
                 if (mode > this.#height) {
                     this.#height = mode;
                 }
@@ -493,16 +522,23 @@ class FallbackProvider extends abstract_provider_js_1.AbstractProvider {
             runner.didBump = true;
             newRunners++;
         }
+        // Wait for someone to either complete its perform or stall out
+        await Promise.race(interesting);
         // Check if we have reached quorum on a result (or error)
         const value = await this.#checkQuorum(running, req);
         if (value !== undefined) {
             if (value instanceof Error) {
-                throw value;
+                if (this.#hasNextConfig(running)) {
+                    newRunners++;
+                }
+                else {
+                    throw value;
+                }
             }
-            return value;
+            else {
+                return value;
+            }
         }
-        // Wait for someone to either complete its perform or stall out
-        await Promise.race(interesting);
         // Add any new runners, because a staller timed out or a result
         // or error response came in.
         for (let i = 0; i < newRunners; i++) {
