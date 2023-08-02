@@ -2,6 +2,9 @@ import { assert, isHexString } from "../utils/index.js";
 function copy(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
+function stall(duration) {
+    return new Promise((resolve) => { setTimeout(resolve, duration); });
+}
 /**
  *  Return the polling subscriber for common events.
  *
@@ -197,6 +200,7 @@ export class PollingEventSubscriber {
     // The most recent block we have scanned for events. The value -2
     // indicates we still need to fetch an initial block number
     #blockNumber;
+    #concurrentBlockNumber;
     /**
      *  Create a new **PollingTransactionSubscriber** attached to
      *  %%provider%%, listening for %%filter%%.
@@ -207,16 +211,27 @@ export class PollingEventSubscriber {
         this.#poller = this.#poll.bind(this);
         this.#running = false;
         this.#blockNumber = -2;
+        this.#concurrentBlockNumber = -2;
     }
     async #poll(blockNumber) {
         // The initial block hasn't been determined yet
         if (this.#blockNumber === -2) {
             return;
         }
+        // Debounce concurrent calls to #poll within a 16ms time window
+        if (blockNumber > this.#concurrentBlockNumber) {
+            this.#concurrentBlockNumber = blockNumber;
+        }
+        await stall(16);
+        if (blockNumber !== this.#concurrentBlockNumber) {
+            return;
+        }
         const filter = copy(this.#filter);
         filter.fromBlock = this.#blockNumber + 1;
         filter.toBlock = blockNumber;
         const logs = await this.#provider.getLogs(filter);
+        // Undo debounce state
+        this.#concurrentBlockNumber = -2;
         // No logs could just mean the node has not indexed them yet,
         // so we keep a sliding window of 60 blocks to keep scanning
         if (logs.length === 0) {

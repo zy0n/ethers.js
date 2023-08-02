@@ -304,6 +304,9 @@ export class FallbackProvider extends AbstractProvider {
                 return await provider.getTransactionResult(req.hash);
         }
     }
+    #sortConfigsByAscendingPriority(configs) {
+        configs.sort((a, b) => a.priority - b.priority);
+    }
     // Grab the next (random) config that is not already part of
     // the running set
     #getNextConfig(running) {
@@ -314,7 +317,7 @@ export class FallbackProvider extends AbstractProvider {
         // Shuffle the states, sorted by priority
         const allConfigs = this.#configs.slice();
         shuffle(allConfigs);
-        allConfigs.sort((a, b) => (b.priority - a.priority));
+        this.#sortConfigsByAscendingPriority(allConfigs);
         for (const config of allConfigs) {
             if (config._lastFatalError) {
                 continue;
@@ -495,6 +498,8 @@ export class FallbackProvider extends AbstractProvider {
             }
             return value;
         }
+        // Wait for someone to either complete its perform or stall out
+        await Promise.race(interesting);
         // Add any new runners, because a staller timed out or a result
         // or error response came in.
         for (let i = 0; i < newRunners; i++) {
@@ -505,8 +510,6 @@ export class FallbackProvider extends AbstractProvider {
             request: "%sub-requests",
             info: { request: req, results: Array.from(running).map((r) => stringify(r.result)) }
         });
-        // Wait for someone to either complete its perform or stall out
-        await Promise.race(interesting);
         // This is recursive, but at worst case the depth is 2x the
         // number of providers (each has a perform and a staller)
         return await this.#waitForQuorum(running, req);
@@ -538,9 +541,7 @@ export class FallbackProvider extends AbstractProvider {
         await this.#initialSync();
         // Bootstrap enough runners to meet quorum
         const running = new Set();
-        for (let i = 0; i < this.quorum; i++) {
-            this.#addRunner(running, req);
-        }
+        this.#addRunner(running, req);
         const result = await this.#waitForQuorum(running, req);
         // Track requests sent to a provider that are still
         // outstanding after quorum has been otherwise found

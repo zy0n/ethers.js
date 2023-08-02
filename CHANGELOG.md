@@ -3,6 +3,16 @@ Change Log
 
 This change log is maintained by `src.ts/_admin/update-changelog.ts` but may also be manually updated.
 
+ethers/v6.6.8 (2023-08-02 14:36)
+--------------------------------
+
+  - Merge: 4f5aab60 4466ef08     Merge branch 'fix-fallback-provider-stalling' ([420e5fa](https://github.com/ethers-io/ethers.js/commit/420e5fab3e2fdb643d77a5fd83b90e508e152f11)).
+  - Merge: 20be8af3 674d6edb     Merge branch 'fallback-provider-priority-sort' ([4f5aab6](https://github.com/ethers-io/ethers.js/commit/4f5aab60f61b9ba1bf5d4c3021ab4ebb3c937a60)).
+  - Merge: 17969fe4 259237f2     Merge branch 'debounce-subscriber-polling' ([20be8af](https://github.com/ethers-io/ethers.js/commit/20be8af3ae36272d87c4cf1513509791db70f5a6)).
+  - Fix FallbackProvider stalling to be sequential ([4466ef0](https://github.com/ethers-io/ethers.js/commit/4466ef0808d3c5260f08dc2771cfb1a601f17a20)).
+  - Fix FallbackProvider priority sorting ([674d6ed](https://github.com/ethers-io/ethers.js/commit/674d6edb89daa9a332f25d6fcca6f5f4702b6ae9)).
+  - Fix concurrent events in PollingEventSubscriber ([259237f](https://github.com/ethers-io/ethers.js/commit/259237f2fdec08623e895b2448356c81768d44cd)).
+
 ethers/v6.6.7 (2023-07-28 14:50)
 --------------------------------
 
