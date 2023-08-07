@@ -3,7 +3,7 @@ const __$G = (typeof globalThis !== 'undefined' ? globalThis: typeof window !== 
 /**
  *  The current version of Ethers.
  */
-const version = "6.7.1";
+const version = "6.7.2";
 
 /**
  *  Property helper functions.
@@ -20971,7 +20971,7 @@ class FallbackProvider extends AbstractProvider {
         const config = this.#getNextConfig(running);
         // No runners available
         if (config == null) {
-            return null;
+            return 0;
         }
         // Create a new runner
         const runner = {
@@ -21003,7 +21003,7 @@ class FallbackProvider extends AbstractProvider {
             runner.staller = null;
         })();
         running.add(runner);
-        return runner;
+        return runner.config.weight;
     }
     // Initializes the blockNumber and network for each runner and
     // blocks until initialized
@@ -21190,7 +21190,13 @@ class FallbackProvider extends AbstractProvider {
         await this.#initialSync();
         // Bootstrap enough runners to meet quorum
         const running = new Set();
-        this.#addRunner(running, req);
+        let weightSoFar = 0;
+        for (let i = 0; i < this.quorum; i++) {
+            weightSoFar += this.#addRunner(running, req);
+            if (weightSoFar >= this.quorum) {
+                break;
+            }
+        }
         const result = await this.#waitForQuorum(running, req);
         // Track requests sent to a provider that are still
         // outstanding after quorum has been otherwise found

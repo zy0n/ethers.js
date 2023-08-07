@@ -24,9 +24,9 @@ function writeVersion(version) {
     const tag = pkgInfo.publishConfig.tag;
     // Get the remote version that matches our dist-tag
     const remoteInfo = await getNpmPackage(pkgInfo.name);
-    const remoteVersion = remoteInfo["dist-tags"][tag];
+    const remoteVersion = pkgInfo.version;
     // Remote pkg
-    const remotePkgInfo = remoteInfo.versions[remoteVersion];
+    const remotePkgInfo = remoteInfo.versions[remoteInfo["dist-tags"][tag]];
     const remoteGitHead = remotePkgInfo.gitHead;
     let gitHead = "";
     for (const log of await getLogs(["."])) {

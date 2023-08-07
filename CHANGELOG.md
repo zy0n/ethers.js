@@ -3,27 +3,16 @@ Change Log
 
 This change log is maintained by `src.ts/_admin/update-changelog.ts` but may also be manually updated.
 
-ethers/v6.7.1 (2023-08-07 14:07)
+ethers/v6.7.2 (2023-08-07 21:28)
 --------------------------------
 
+  - Merge: e506f16c 786f4c04     Merge branch 'fix-fallback-provider-stalling' ([26138c1](https://github.com/ethers-io/ethers.js/commit/26138c119e7be26892da46d502fd8b7d36322232)).
+  - Still allow some parallelism up-to quorum ([786f4c0](https://github.com/ethers-io/ethers.js/commit/786f4c041ea7b154003ea3b0c0137d289bfc50af)).
   - Merge: 260bc64f f28161e6     Merge branch 'fallback-provider-check-quorum-non-error' ([a5fea73](https://github.com/ethers-io/ethers.js/commit/a5fea731db4985cc941958ee43f5e2358ebd2919)).
   - Prefer non-errors in FallbackProvider checkQuorum ([f28161e](https://github.com/ethers-io/ethers.js/commit/f28161e68b67568e9b7b497a7af2da725e78776e)).
   - Merge: 2d8a8141 c5cb7cd7     Merge remote-tracking branch 'upstream/main' ([260bc64](https://github.com/ethers-io/ethers.js/commit/260bc64fb5db9a27a3ac8e975249273ce40ae96e)).
   - Add "Sync Fork" GitHub Action ([2d8a814](https://github.com/ethers-io/ethers.js/commit/2d8a81411e1d3fe0aca4d6a0a61b0ddeae05f422)).
   - tests: add faucet address to output for refilling ([e45bc77](https://github.com/ethers-io/ethers.js/commit/e45bc77cd921387ebcf8a3e1e2fcdf97b00d17f2)).
-  - Merge: 2d0c91f9 29c466a0     Merge branch 'fix-fallback-provider-runner-error' ([4dba112](https://github.com/ethers-io/ethers.js/commit/4dba112ae0c4a618ccdd4ddbf4e77825ed9d4794)).
-  - Fix FallbackProvider to better handle errors ([29c466a](https://github.com/ethers-io/ethers.js/commit/29c466a0ab5e56b9d5b1fab724f4a74065834e40)).
-  - Merge: 4f5aab60 4466ef08     Merge branch 'fix-fallback-provider-stalling' ([420e5fa](https://github.com/ethers-io/ethers.js/commit/420e5fab3e2fdb643d77a5fd83b90e508e152f11)).
-  - Merge: 20be8af3 674d6edb     Merge branch 'fallback-provider-priority-sort' ([4f5aab6](https://github.com/ethers-io/ethers.js/commit/4f5aab60f61b9ba1bf5d4c3021ab4ebb3c937a60)).
-  - Merge: 17969fe4 259237f2     Merge branch 'debounce-subscriber-polling' ([20be8af](https://github.com/ethers-io/ethers.js/commit/20be8af3ae36272d87c4cf1513509791db70f5a6)).
-  - Fix FallbackProvider stalling to be sequential ([4466ef0](https://github.com/ethers-io/ethers.js/commit/4466ef0808d3c5260f08dc2771cfb1a601f17a20)).
-  - Fix FallbackProvider priority sorting ([674d6ed](https://github.com/ethers-io/ethers.js/commit/674d6edb89daa9a332f25d6fcca6f5f4702b6ae9)).
-  - Fix concurrent events in PollingEventSubscriber ([259237f](https://github.com/ethers-io/ethers.js/commit/259237f2fdec08623e895b2448356c81768d44cd)).
-
-ethers/v6.7.1 (2023-08-07 13:49)
---------------------------------
-
-  - Add "Sync Fork" GitHub Action ([2d8a814](https://github.com/ethers-io/ethers.js/commit/2d8a81411e1d3fe0aca4d6a0a61b0ddeae05f422)).
   - Merge: 2d0c91f9 29c466a0     Merge branch 'fix-fallback-provider-runner-error' ([4dba112](https://github.com/ethers-io/ethers.js/commit/4dba112ae0c4a618ccdd4ddbf4e77825ed9d4794)).
   - Fix FallbackProvider to better handle errors ([29c466a](https://github.com/ethers-io/ethers.js/commit/29c466a0ab5e56b9d5b1fab724f4a74065834e40)).
   - Merge: 4f5aab60 4466ef08     Merge branch 'fix-fallback-provider-stalling' ([420e5fa](https://github.com/ethers-io/ethers.js/commit/420e5fab3e2fdb643d77a5fd83b90e508e152f11)).
