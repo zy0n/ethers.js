@@ -3,8 +3,8 @@ import { isAddressable, resolveAddress } from "../address/index.js";
 // import from provider.ts instead of index.ts to prevent circular dep
 // from EtherscanProvider
 import { copyRequest, Log } from "../providers/provider.js";
-import { defineProperties, getBigInt, isCallException, isHexString, resolveProperties, makeError, assert, assertArgument } from "../utils/index.js";
-import { ContractEventPayload, ContractUnknownEventPayload, ContractTransactionResponse, EventLog } from "./wrappers.js";
+import { defineProperties, getBigInt, isCallException, isHexString, resolveProperties, isError, makeError, assert, assertArgument } from "../utils/index.js";
+import { ContractEventPayload, ContractUnknownEventPayload, ContractTransactionResponse, EventLog, UndecodedEventLog } from "./wrappers.js";
 const BN_0 = BigInt(0);
 function canCall(value) {
     return (value && typeof (value.call) === "function");
@@ -575,17 +575,20 @@ export class BaseContract {
         setInternal(this, { addrPromise, addr, deployTx, subs });
         // Add the event filters
         const filters = new Proxy({}, {
-            get: (target, _prop, receiver) => {
+            get: (target, prop, receiver) => {
                 // Pass important checks (like `then` for Promise) through
-                if (passProperties.indexOf(_prop) >= 0) {
-                    return Reflect.get(target, _prop, receiver);
+                if (typeof (prop) === "symbol" || passProperties.indexOf(prop) >= 0) {
+                    return Reflect.get(target, prop, receiver);
                 }
-                const prop = String(_prop);
-                const result = this.getEvent(prop);
-                if (result) {
-                    return result;
+                try {
+                    return this.getEvent(prop);
                 }
-                throw new Error(`unknown contract event: ${prop}`);
+                catch (error) {
+                    if (!isError(error, "INVALID_ARGUMENT") || error.argument !== "key") {
+                        throw error;
+                    }
+                }
+                return undefined;
             },
             has: (target, prop) => {
                 // Pass important checks (like `then` for Promise) through
@@ -601,22 +604,26 @@ export class BaseContract {
         });
         // Return a Proxy that will respond to functions
         return new Proxy(this, {
-            get: (target, _prop, receiver) => {
-                if (_prop in target || passProperties.indexOf(_prop) >= 0 || typeof (_prop) === "symbol") {
-                    return Reflect.get(target, _prop, receiver);
+            get: (target, prop, receiver) => {
+                if (typeof (prop) === "symbol" || prop in target || passProperties.indexOf(prop) >= 0) {
+                    return Reflect.get(target, prop, receiver);
                 }
-                const prop = String(_prop);
-                const result = target.getFunction(prop);
-                if (result) {
-                    return result;
+                // Undefined properties should return undefined
+                try {
+                    return target.getFunction(prop);
                 }
-                throw new Error(`unknown contract method: ${prop}`);
+                catch (error) {
+                    if (!isError(error, "INVALID_ARGUMENT") || error.argument !== "key") {
+                        throw error;
+                    }
+                }
+                return undefined;
             },
             has: (target, prop) => {
-                if (prop in target || passProperties.indexOf(prop) >= 0 || typeof (prop) === "symbol") {
+                if (typeof (prop) === "symbol" || prop in target || passProperties.indexOf(prop) >= 0) {
                     return Reflect.has(target, prop);
                 }
-                return target.interface.hasFunction(String(prop));
+                return target.interface.hasFunction(prop);
             }
         });
     }
@@ -721,9 +728,23 @@ export class BaseContract {
      *  @_ignore:
      */
     async queryTransaction(hash) {
-        // Is this useful?
         throw new Error("@TODO");
     }
+    /*
+    // @TODO: this is a non-backwards compatible change, but will be added
+    //        in v7 and in a potential SmartContract class in an upcoming
+    //        v6 release
+    async getTransactionReceipt(hash: string): Promise<null | ContractTransactionReceipt> {
+        const provider = getProvider(this.runner);
+        assert(provider, "contract runner does not have a provider",
+            "UNSUPPORTED_OPERATION", { operation: "queryTransaction" });
+
+        const receipt = await provider.getTransactionReceipt(hash);
+        if (receipt == null) { return null; }
+
+        return new ContractTransactionReceipt(this.interface, provider, receipt);
+    }
+    */
     /**
      *  Provide historic access to event data for %%event%% in the range
      *  %%fromBlock%% (default: ``0``) to %%toBlock%% (default: ``"latest"``)
@@ -754,7 +775,9 @@ export class BaseContract {
                 try {
                     return new EventLog(log, this.interface, foundFragment);
                 }
-                catch (error) { }
+                catch (error) {
+                    return new UndecodedEventLog(log, error);
+                }
             }
             return new Log(log, provider);
         });

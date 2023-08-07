@@ -240,8 +240,8 @@ class FallbackProvider extends abstract_provider_js_1.AbstractProvider {
      *  If a [[Provider]] is included in %%providers%%, defaults are used
      *  for the configuration.
      */
-    constructor(providers, network) {
-        super(network);
+    constructor(providers, network, options) {
+        super(network, options);
         this.#configs = providers.map((p) => {
             if (p instanceof abstract_provider_js_1.AbstractProvider) {
                 return Object.assign({ provider: p }, defaultConfig, defaultState);
@@ -252,7 +252,15 @@ class FallbackProvider extends abstract_provider_js_1.AbstractProvider {
         });
         this.#height = -2;
         this.#initialSyncPromise = null;
-        this.quorum = 2; //Math.ceil(providers.length /  2);
+        if (options && options.quorum != null) {
+            this.quorum = options.quorum;
+        }
+        else {
+            this.quorum = Math.ceil(this.#configs.reduce((accum, config) => {
+                accum += config.weight;
+                return accum;
+            }, 0) / 2);
+        }
         this.eventQuorum = 1;
         this.eventWorkers = 1;
         (0, index_js_1.assertArgument)(this.quorum <= this.#configs.reduce((a, c) => (a + c.weight), 0), "quorum exceed provider wieght", "quorum", this.quorum);
