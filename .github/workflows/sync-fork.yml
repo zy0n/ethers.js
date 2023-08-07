@@ -1,0 +1,16 @@
+name: Sync fork with upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # every day at midnight
+  workflow_dispatch: # allows you to run workflow manually
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: tgymnich/fork-sync@v1.8
+        with:
+          head: main
+          base: main
