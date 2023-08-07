@@ -250,7 +250,11 @@ function checkQuorum(quorum: number, results: Array<TallyResult>): any | Error {
     let best: null | { value: any, weight: number } = null;
 
     for (const r of tally.values()) {
-        if (r.weight >= quorum && (!best || r.weight > best.weight)) {
+        const betterThanBest = best && r.weight > best.weight;
+        const betterThanBestError = best && r.weight === best.weight &&
+            best.value instanceof Error &&
+            !(r.value instanceof Error);
+        if (r.weight >= quorum && (!best || betterThanBest || betterThanBestError)) {
             best = r;
         }
     }
