@@ -56,13 +56,21 @@ class Network {
      *  This is the canonical name, as networks migh have multiple
      *  names.
      */
-    get name() { return this.#name; }
-    set name(value) { this.#name = value; }
+    get name() {
+        return this.#name;
+    }
+    set name(value) {
+        this.#name = value;
+    }
     /**
      *  The network chain ID.
      */
-    get chainId() { return this.#chainId; }
-    set chainId(value) { this.#chainId = (0, index_js_2.getBigInt)(value, "chainId"); }
+    get chainId() {
+        return this.#chainId;
+    }
+    set chainId(value) {
+        this.#chainId = (0, index_js_2.getBigInt)(value, 'chainId');
+    }
     /**
      *  Returns true if %%other%% matches this network. Any chain ID
      *  must match, and if no chain ID is present, the name must match.
@@ -74,30 +82,30 @@ class Network {
         if (other == null) {
             return false;
         }
-        if (typeof (other) === "string") {
+        if (typeof other === 'string') {
             try {
-                return (this.chainId === (0, index_js_2.getBigInt)(other));
+                return this.chainId === (0, index_js_2.getBigInt)(other);
             }
             catch (error) { }
-            return (this.name === other);
+            return this.name === other;
         }
-        if (typeof (other) === "number" || typeof (other) === "bigint") {
+        if (typeof other === 'number' || typeof other === 'bigint') {
             try {
-                return (this.chainId === (0, index_js_2.getBigInt)(other));
+                return this.chainId === (0, index_js_2.getBigInt)(other);
             }
             catch (error) { }
             return false;
         }
-        if (typeof (other) === "object") {
+        if (typeof other === 'object') {
             if (other.chainId != null) {
                 try {
-                    return (this.chainId === (0, index_js_2.getBigInt)(other.chainId));
+                    return this.chainId === (0, index_js_2.getBigInt)(other.chainId);
                 }
                 catch (error) { }
                 return false;
             }
             if (other.name != null) {
-                return (this.name === other.name);
+                return this.name === other.name;
             }
             return false;
         }
@@ -126,14 +134,14 @@ class Network {
      *  a fragment.
      */
     getPlugin(name) {
-        return (this.#plugins.get(name)) || null;
+        return this.#plugins.get(name) || null;
     }
     /**
      *  Gets a list of all plugins that match %%name%%, with otr without
      *  a fragment.
      */
     getPlugins(basename) {
-        return (this.plugins.filter((p) => (p.name.split("#")[0] === basename)));
+        return (this.plugins.filter((p) => p.name.split('#')[0] === basename));
     }
     /**
      *  Create a copy of this Network.
@@ -152,14 +160,15 @@ class Network {
      *  values.
      */
     computeIntrinsicGas(tx) {
-        const costs = this.getPlugin("org.ethers.plugins.network.GasCost") || (new plugins_network_js_1.GasCostPlugin());
+        const costs = this.getPlugin('org.ethers.plugins.network.GasCost') ||
+            new plugins_network_js_1.GasCostPlugin();
         let gas = costs.txBase;
         if (tx.to == null) {
             gas += costs.txCreate;
         }
         if (tx.data) {
             for (let i = 2; i < tx.data.length; i += 2) {
-                if (tx.data.substring(i, i + 2) === "00") {
+                if (tx.data.substring(i, i + 2) === '00') {
                     gas += costs.txDataZero;
                 }
                 else {
@@ -170,7 +179,9 @@ class Network {
         if (tx.accessList) {
             const accessList = (0, index_js_1.accessListify)(tx.accessList);
             for (const addr in accessList) {
-                gas += costs.txAccessListAddress + costs.txAccessListStorageKey * accessList[addr].storageKeys.length;
+                gas +=
+                    costs.txAccessListAddress +
+                        costs.txAccessListStorageKey * accessList[addr].storageKeys.length;
             }
         }
         return gas;
@@ -182,33 +193,33 @@ class Network {
         injectCommonNetworks();
         // Default network
         if (network == null) {
-            return Network.from("mainnet");
+            return Network.from('mainnet');
         }
         // Canonical name or chain ID
-        if (typeof (network) === "number") {
+        if (typeof network === 'number') {
             network = BigInt(network);
         }
-        if (typeof (network) === "string" || typeof (network) === "bigint") {
+        if (typeof network === 'string' || typeof network === 'bigint') {
             const networkFunc = Networks.get(network);
             if (networkFunc) {
                 return networkFunc();
             }
-            if (typeof (network) === "bigint") {
-                return new Network("unknown", network);
+            if (typeof network === 'bigint') {
+                return new Network('unknown', network);
             }
-            (0, index_js_2.assertArgument)(false, "unknown network", "network", network);
+            (0, index_js_2.assertArgument)(false, 'unknown network', 'network', network);
         }
         // Clonable with network-like abilities
-        if (typeof (network.clone) === "function") {
+        if (typeof network.clone === 'function') {
             const clone = network.clone();
             //if (typeof(network.name) !== "string" || typeof(network.chainId) !== "number") {
             //}
             return clone;
         }
         // Networkish
-        if (typeof (network) === "object") {
-            (0, index_js_2.assertArgument)(typeof (network.name) === "string" && typeof (network.chainId) === "number", "invalid network object name or chainId", "network", network);
-            const custom = new Network((network.name), (network.chainId));
+        if (typeof network === 'object') {
+            (0, index_js_2.assertArgument)(typeof network.name === 'string' && typeof network.chainId === 'number', 'invalid network object name or chainId', 'network', network);
+            const custom = new Network(network.name, network.chainId);
             if (network.ensAddress || network.ensNetwork != null) {
                 custom.attachPlugin(new plugins_network_js_1.EnsPlugin(network.ensAddress, network.ensNetwork));
             }
@@ -217,19 +228,19 @@ class Network {
             //}
             return custom;
         }
-        (0, index_js_2.assertArgument)(false, "invalid network", "network", network);
+        (0, index_js_2.assertArgument)(false, 'invalid network', 'network', network);
     }
     /**
      *  Register %%nameOrChainId%% with a function which returns
      *  an instance of a Network representing that chain.
      */
     static register(nameOrChainId, networkFunc) {
-        if (typeof (nameOrChainId) === "number") {
+        if (typeof nameOrChainId === 'number') {
             nameOrChainId = BigInt(nameOrChainId);
         }
         const existing = Networks.get(nameOrChainId);
         if (existing) {
-            (0, index_js_2.assertArgument)(false, `conflicting network for ${JSON.stringify(existing.name)}`, "nameOrChainId", nameOrChainId);
+            (0, index_js_2.assertArgument)(false, `conflicting network for ${JSON.stringify(existing.name)}`, 'nameOrChainId', nameOrChainId);
         }
         Networks.set(nameOrChainId, networkFunc);
     }
@@ -245,9 +256,9 @@ function parseUnits(_value, decimals) {
         throw new Error(`invalid gwei value: ${_value}`);
     }
     // Break into [ whole, fraction ]
-    const comps = value.split(".");
+    const comps = value.split('.');
     if (comps.length === 1) {
-        comps.push("");
+        comps.push('');
     }
     // More than 1 decimal point or too many fractional positions
     if (comps.length !== 2) {
@@ -255,7 +266,7 @@ function parseUnits(_value, decimals) {
     }
     // Pad the fraction to 9 decimalplaces
     while (comps[1].length < decimals) {
-        comps[1] += "0";
+        comps[1] += '0';
     }
     // Too many decimals and some non-zero ending, take the ceiling
     if (comps[1].length > 9) {
@@ -268,10 +279,11 @@ function parseUnits(_value, decimals) {
     return BigInt(comps[0] + comps[1]);
 }
 // Used by Polygon to use a gas station for fee data
+// @ts-expect-error - Unused.
 function getGasStationPlugin(url) {
     return new plugins_network_js_1.FetchUrlFeeDataNetworkPlugin(url, async (fetchFeeData, provider, request) => {
         // Prevent Cloudflare from blocking our request in node.js
-        request.setHeader("User-Agent", "ethers");
+        request.setHeader('User-Agent', 'ethers');
         let response;
         try {
             response = await request.send();
@@ -283,24 +295,25 @@ function getGasStationPlugin(url) {
             return feeData;
         }
         catch (error) {
-            (0, index_js_2.assert)(false, `error encountered with polygon gas station (${JSON.stringify(request.url)})`, "SERVER_ERROR", { request, response, error });
+            (0, index_js_2.assert)(false, `error encountered with polygon gas station (${JSON.stringify(request.url)})`, 'SERVER_ERROR', { request, response, error });
         }
     });
 }
 // Used by Optimism for a custom priority fee
 function getPriorityFeePlugin(maxPriorityFeePerGas) {
-    return new plugins_network_js_1.FetchUrlFeeDataNetworkPlugin("data:", async (fetchFeeData, provider, request) => {
+    return new plugins_network_js_1.FetchUrlFeeDataNetworkPlugin('data:', async (fetchFeeData, provider, request) => {
         const feeData = await fetchFeeData();
         // This should always fail
-        if (feeData.maxFeePerGas == null || feeData.maxPriorityFeePerGas == null) {
+        if (feeData.maxFeePerGas == null ||
+            feeData.maxPriorityFeePerGas == null) {
             return feeData;
         }
         // Compute the corrected baseFee to recompute the updated values
         const baseFee = feeData.maxFeePerGas - feeData.maxPriorityFeePerGas;
         return {
             gasPrice: feeData.gasPrice,
-            maxFeePerGas: (baseFee + maxPriorityFeePerGas),
-            maxPriorityFeePerGas
+            maxFeePerGas: baseFee + maxPriorityFeePerGas,
+            maxPriorityFeePerGas,
         };
     });
 }
@@ -334,41 +347,41 @@ function injectCommonNetworks() {
             });
         }
     }
-    registerEth("mainnet", 1, { ensNetwork: 1, altNames: ["homestead"] });
-    registerEth("ropsten", 3, { ensNetwork: 3 });
-    registerEth("rinkeby", 4, { ensNetwork: 4 });
-    registerEth("goerli", 5, { ensNetwork: 5 });
-    registerEth("kovan", 42, { ensNetwork: 42 });
-    registerEth("sepolia", 11155111, {});
-    registerEth("classic", 61, {});
-    registerEth("classicKotti", 6, {});
-    registerEth("arbitrum", 42161, {
+    registerEth('mainnet', 1, { ensNetwork: 1, altNames: ['homestead'] });
+    registerEth('ropsten', 3, { ensNetwork: 3 });
+    registerEth('rinkeby', 4, { ensNetwork: 4 });
+    registerEth('goerli', 5, { ensNetwork: 5 });
+    registerEth('kovan', 42, { ensNetwork: 42 });
+    registerEth('sepolia', 11155111, {});
+    registerEth('classic', 61, {});
+    registerEth('classicKotti', 6, {});
+    registerEth('arbitrum', 42161, {
         ensNetwork: 1,
     });
-    registerEth("arbitrum-goerli", 421613, {});
-    registerEth("bnb", 56, { ensNetwork: 1 });
-    registerEth("bnbt", 97, {});
-    registerEth("linea", 59144, { ensNetwork: 1 });
-    registerEth("linea-goerli", 59140, {});
-    registerEth("matic", 137, {
+    registerEth('arbitrum-goerli', 421613, {});
+    registerEth('bnb', 56, { ensNetwork: 1 });
+    registerEth('bnbt', 97, {});
+    registerEth('linea', 59144, { ensNetwork: 1 });
+    registerEth('linea-goerli', 59140, {});
+    registerEth('matic', 137, {
         ensNetwork: 1,
         plugins: [
-            getGasStationPlugin("https:/\/gasstation.polygon.technology/v2")
-        ]
+        // This does not handle Type 0/1 gas prices.
+        // getGasStationPlugin("https:/\/gasstation.polygon.technology/v2")
+        ],
     });
-    registerEth("matic-mumbai", 80001, {
-        altNames: ["maticMumbai", "maticmum"],
+    registerEth('matic-mumbai', 80001, {
+        altNames: ['maticMumbai', 'maticmum'],
         plugins: [
-            getGasStationPlugin("https:/\/gasstation-testnet.polygon.technology/v2")
-        ]
+        // This does not handle Type 0/1 gas prices.
+        // getGasStationPlugin("https:/\/gasstation-testnet.polygon.technology/v2")
+        ],
     });
-    registerEth("optimism", 10, {
+    registerEth('optimism', 10, {
         ensNetwork: 1,
-        plugins: [
-            getPriorityFeePlugin(BigInt("1000000"))
-        ]
+        plugins: [getPriorityFeePlugin(BigInt('1000000'))],
     });
-    registerEth("optimism-goerli", 420, {});
-    registerEth("xdai", 100, { ensNetwork: 1 });
+    registerEth('optimism-goerli', 420, {});
+    registerEth('xdai', 100, { ensNetwork: 1 });
 }
 //# sourceMappingURL=network.js.map
