@@ -643,7 +643,11 @@ export class JsonRpcApiProvider extends AbstractProvider {
                 operation: payload.method, info: { error, payload }
             });
         }
-        return makeError("could not coalesce error", "UNKNOWN_ERROR", { error, payload });
+        let url = 'unknown';
+        if (this instanceof JsonRpcProvider) {
+            url = this._getConnection().url;
+        }
+        return makeError(`could not coalesce error: method ${method}, chainId ${this.#network?.chainId}, url ${url}`, "UNKNOWN_ERROR", { error });
     }
     /**
      *  Requests the %%method%% with %%params%% via the JSON-RPC protocol
