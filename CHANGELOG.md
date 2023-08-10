@@ -3,9 +3,10 @@ Change Log
 
 This change log is maintained by `src.ts/_admin/update-changelog.ts` but may also be manually updated.
 
-ethers/v6.7.2 (2023-08-07 21:28)
+ethers/v6.7.4 (2023-08-10 13:15)
 --------------------------------
 
+  - Bypass gas station plugin for polygon ([5d3a0fc](https://github.com/ethers-io/ethers.js/commit/5d3a0fc8d3f009ef73accb537b2ae2a9b63f95f9)).
   - Merge: e506f16c 786f4c04     Merge branch 'fix-fallback-provider-stalling' ([26138c1](https://github.com/ethers-io/ethers.js/commit/26138c119e7be26892da46d502fd8b7d36322232)).
   - Still allow some parallelism up-to quorum ([786f4c0](https://github.com/ethers-io/ethers.js/commit/786f4c041ea7b154003ea3b0c0137d289bfc50af)).
   - Merge: 260bc64f f28161e6     Merge branch 'fallback-provider-check-quorum-non-error' ([a5fea73](https://github.com/ethers-io/ethers.js/commit/a5fea731db4985cc941958ee43f5e2358ebd2919)).

@@ -3,7 +3,7 @@ const __$G = (typeof globalThis !== 'undefined' ? globalThis: typeof window !== 
 /**
  *  The current version of Ethers.
  */
-const version = "6.7.2";
+const version = "6.7.4";
 
 /**
  *  Property helper functions.
@@ -2505,7 +2505,7 @@ function formatUnits(value, unit) {
  *  %%unit%% decimal places. The %%unit%% may the number of decimal places
  *  or the name of a unit (e.g. ``"gwei"`` for 9 decimal places).
  */
-function parseUnits$1(value, unit) {
+function parseUnits(value, unit) {
     assertArgument(typeof (value) === "string", "value must be a string", "value", value);
     let decimals = 18;
     if (typeof (unit) === "string") {
@@ -2529,7 +2529,7 @@ function formatEther(wei) {
  *  decimal places.
  */
 function parseEther(ether) {
-    return parseUnits$1(ether, 18);
+    return parseUnits(ether, 18);
 }
 
 /**
@@ -16059,13 +16059,21 @@ class Network {
      *  This is the canonical name, as networks migh have multiple
      *  names.
      */
-    get name() { return this.#name; }
-    set name(value) { this.#name = value; }
+    get name() {
+        return this.#name;
+    }
+    set name(value) {
+        this.#name = value;
+    }
     /**
      *  The network chain ID.
      */
-    get chainId() { return this.#chainId; }
-    set chainId(value) { this.#chainId = getBigInt(value, "chainId"); }
+    get chainId() {
+        return this.#chainId;
+    }
+    set chainId(value) {
+        this.#chainId = getBigInt(value, 'chainId');
+    }
     /**
      *  Returns true if %%other%% matches this network. Any chain ID
      *  must match, and if no chain ID is present, the name must match.
@@ -16077,30 +16085,30 @@ class Network {
         if (other == null) {
             return false;
         }
-        if (typeof (other) === "string") {
+        if (typeof other === 'string') {
             try {
-                return (this.chainId === getBigInt(other));
+                return this.chainId === getBigInt(other);
             }
             catch (error) { }
-            return (this.name === other);
+            return this.name === other;
         }
-        if (typeof (other) === "number" || typeof (other) === "bigint") {
+        if (typeof other === 'number' || typeof other === 'bigint') {
             try {
-                return (this.chainId === getBigInt(other));
+                return this.chainId === getBigInt(other);
             }
             catch (error) { }
             return false;
         }
-        if (typeof (other) === "object") {
+        if (typeof other === 'object') {
             if (other.chainId != null) {
                 try {
-                    return (this.chainId === getBigInt(other.chainId));
+                    return this.chainId === getBigInt(other.chainId);
                 }
                 catch (error) { }
                 return false;
             }
             if (other.name != null) {
-                return (this.name === other.name);
+                return this.name === other.name;
             }
             return false;
         }
@@ -16129,14 +16137,14 @@ class Network {
      *  a fragment.
      */
     getPlugin(name) {
-        return (this.#plugins.get(name)) || null;
+        return this.#plugins.get(name) || null;
     }
     /**
      *  Gets a list of all plugins that match %%name%%, with otr without
      *  a fragment.
      */
     getPlugins(basename) {
-        return (this.plugins.filter((p) => (p.name.split("#")[0] === basename)));
+        return (this.plugins.filter((p) => p.name.split('#')[0] === basename));
     }
     /**
      *  Create a copy of this Network.
@@ -16155,14 +16163,15 @@ class Network {
      *  values.
      */
     computeIntrinsicGas(tx) {
-        const costs = this.getPlugin("org.ethers.plugins.network.GasCost") || (new GasCostPlugin());
+        const costs = this.getPlugin('org.ethers.plugins.network.GasCost') ||
+            new GasCostPlugin();
         let gas = costs.txBase;
         if (tx.to == null) {
             gas += costs.txCreate;
         }
         if (tx.data) {
             for (let i = 2; i < tx.data.length; i += 2) {
-                if (tx.data.substring(i, i + 2) === "00") {
+                if (tx.data.substring(i, i + 2) === '00') {
                     gas += costs.txDataZero;
                 }
                 else {
@@ -16173,7 +16182,9 @@ class Network {
         if (tx.accessList) {
             const accessList = accessListify(tx.accessList);
             for (const addr in accessList) {
-                gas += costs.txAccessListAddress + costs.txAccessListStorageKey * accessList[addr].storageKeys.length;
+                gas +=
+                    costs.txAccessListAddress +
+                        costs.txAccessListStorageKey * accessList[addr].storageKeys.length;
             }
         }
         return gas;
@@ -16185,33 +16196,33 @@ class Network {
         injectCommonNetworks();
         // Default network
         if (network == null) {
-            return Network.from("mainnet");
+            return Network.from('mainnet');
         }
         // Canonical name or chain ID
-        if (typeof (network) === "number") {
+        if (typeof network === 'number') {
             network = BigInt(network);
         }
-        if (typeof (network) === "string" || typeof (network) === "bigint") {
+        if (typeof network === 'string' || typeof network === 'bigint') {
             const networkFunc = Networks.get(network);
             if (networkFunc) {
                 return networkFunc();
             }
-            if (typeof (network) === "bigint") {
-                return new Network("unknown", network);
+            if (typeof network === 'bigint') {
+                return new Network('unknown', network);
             }
-            assertArgument(false, "unknown network", "network", network);
+            assertArgument(false, 'unknown network', 'network', network);
         }
         // Clonable with network-like abilities
-        if (typeof (network.clone) === "function") {
+        if (typeof network.clone === 'function') {
             const clone = network.clone();
             //if (typeof(network.name) !== "string" || typeof(network.chainId) !== "number") {
             //}
             return clone;
         }
         // Networkish
-        if (typeof (network) === "object") {
-            assertArgument(typeof (network.name) === "string" && typeof (network.chainId) === "number", "invalid network object name or chainId", "network", network);
-            const custom = new Network((network.name), (network.chainId));
+        if (typeof network === 'object') {
+            assertArgument(typeof network.name === 'string' && typeof network.chainId === 'number', 'invalid network object name or chainId', 'network', network);
+            const custom = new Network(network.name, network.chainId);
             if (network.ensAddress || network.ensNetwork != null) {
                 custom.attachPlugin(new EnsPlugin(network.ensAddress, network.ensNetwork));
             }
@@ -16220,89 +16231,38 @@ class Network {
             //}
             return custom;
         }
-        assertArgument(false, "invalid network", "network", network);
+        assertArgument(false, 'invalid network', 'network', network);
     }
     /**
      *  Register %%nameOrChainId%% with a function which returns
      *  an instance of a Network representing that chain.
      */
     static register(nameOrChainId, networkFunc) {
-        if (typeof (nameOrChainId) === "number") {
+        if (typeof nameOrChainId === 'number') {
             nameOrChainId = BigInt(nameOrChainId);
         }
         const existing = Networks.get(nameOrChainId);
         if (existing) {
-            assertArgument(false, `conflicting network for ${JSON.stringify(existing.name)}`, "nameOrChainId", nameOrChainId);
+            assertArgument(false, `conflicting network for ${JSON.stringify(existing.name)}`, 'nameOrChainId', nameOrChainId);
         }
         Networks.set(nameOrChainId, networkFunc);
     }
 }
-// We don't want to bring in formatUnits because it is backed by
-// FixedNumber and we want to keep Networks tiny. The values
-// included by the Gas Stations are also IEEE 754 with lots of
-// rounding issues and exceed the strict checks formatUnits has.
-function parseUnits(_value, decimals) {
-    const value = String(_value);
-    if (!value.match(/^[0-9.]+$/)) {
-        throw new Error(`invalid gwei value: ${_value}`);
-    }
-    // Break into [ whole, fraction ]
-    const comps = value.split(".");
-    if (comps.length === 1) {
-        comps.push("");
-    }
-    // More than 1 decimal point or too many fractional positions
-    if (comps.length !== 2) {
-        throw new Error(`invalid gwei value: ${_value}`);
-    }
-    // Pad the fraction to 9 decimalplaces
-    while (comps[1].length < decimals) {
-        comps[1] += "0";
-    }
-    // Too many decimals and some non-zero ending, take the ceiling
-    if (comps[1].length > 9) {
-        let frac = BigInt(comps[1].substring(0, 9));
-        if (!comps[1].substring(9).match(/^0+$/)) {
-            frac++;
-        }
-        comps[1] = frac.toString();
-    }
-    return BigInt(comps[0] + comps[1]);
-}
-// Used by Polygon to use a gas station for fee data
-function getGasStationPlugin(url) {
-    return new FetchUrlFeeDataNetworkPlugin(url, async (fetchFeeData, provider, request) => {
-        // Prevent Cloudflare from blocking our request in node.js
-        request.setHeader("User-Agent", "ethers");
-        let response;
-        try {
-            response = await request.send();
-            const payload = response.bodyJson.standard;
-            const feeData = {
-                maxFeePerGas: parseUnits(payload.maxFee, 9),
-                maxPriorityFeePerGas: parseUnits(payload.maxPriorityFee, 9),
-            };
-            return feeData;
-        }
-        catch (error) {
-            assert$1(false, `error encountered with polygon gas station (${JSON.stringify(request.url)})`, "SERVER_ERROR", { request, response, error });
-        }
-    });
-}
 // Used by Optimism for a custom priority fee
 function getPriorityFeePlugin(maxPriorityFeePerGas) {
-    return new FetchUrlFeeDataNetworkPlugin("data:", async (fetchFeeData, provider, request) => {
+    return new FetchUrlFeeDataNetworkPlugin('data:', async (fetchFeeData, provider, request) => {
         const feeData = await fetchFeeData();
         // This should always fail
-        if (feeData.maxFeePerGas == null || feeData.maxPriorityFeePerGas == null) {
+        if (feeData.maxFeePerGas == null ||
+            feeData.maxPriorityFeePerGas == null) {
             return feeData;
         }
         // Compute the corrected baseFee to recompute the updated values
         const baseFee = feeData.maxFeePerGas - feeData.maxPriorityFeePerGas;
         return {
             gasPrice: feeData.gasPrice,
-            maxFeePerGas: (baseFee + maxPriorityFeePerGas),
-            maxPriorityFeePerGas
+            maxFeePerGas: baseFee + maxPriorityFeePerGas,
+            maxPriorityFeePerGas,
         };
     });
 }
@@ -16336,42 +16296,42 @@ function injectCommonNetworks() {
             });
         }
     }
-    registerEth("mainnet", 1, { ensNetwork: 1, altNames: ["homestead"] });
-    registerEth("ropsten", 3, { ensNetwork: 3 });
-    registerEth("rinkeby", 4, { ensNetwork: 4 });
-    registerEth("goerli", 5, { ensNetwork: 5 });
-    registerEth("kovan", 42, { ensNetwork: 42 });
-    registerEth("sepolia", 11155111, {});
-    registerEth("classic", 61, {});
-    registerEth("classicKotti", 6, {});
-    registerEth("arbitrum", 42161, {
+    registerEth('mainnet', 1, { ensNetwork: 1, altNames: ['homestead'] });
+    registerEth('ropsten', 3, { ensNetwork: 3 });
+    registerEth('rinkeby', 4, { ensNetwork: 4 });
+    registerEth('goerli', 5, { ensNetwork: 5 });
+    registerEth('kovan', 42, { ensNetwork: 42 });
+    registerEth('sepolia', 11155111, {});
+    registerEth('classic', 61, {});
+    registerEth('classicKotti', 6, {});
+    registerEth('arbitrum', 42161, {
         ensNetwork: 1,
     });
-    registerEth("arbitrum-goerli", 421613, {});
-    registerEth("bnb", 56, { ensNetwork: 1 });
-    registerEth("bnbt", 97, {});
-    registerEth("linea", 59144, { ensNetwork: 1 });
-    registerEth("linea-goerli", 59140, {});
-    registerEth("matic", 137, {
+    registerEth('arbitrum-goerli', 421613, {});
+    registerEth('bnb', 56, { ensNetwork: 1 });
+    registerEth('bnbt', 97, {});
+    registerEth('linea', 59144, { ensNetwork: 1 });
+    registerEth('linea-goerli', 59140, {});
+    registerEth('matic', 137, {
         ensNetwork: 1,
         plugins: [
-            getGasStationPlugin("https:/\/gasstation.polygon.technology/v2")
-        ]
+        // This does not handle Type 0/1 gas prices.
+        // getGasStationPlugin("https:/\/gasstation.polygon.technology/v2")
+        ],
     });
-    registerEth("matic-mumbai", 80001, {
-        altNames: ["maticMumbai", "maticmum"],
+    registerEth('matic-mumbai', 80001, {
+        altNames: ['maticMumbai', 'maticmum'],
         plugins: [
-            getGasStationPlugin("https:/\/gasstation-testnet.polygon.technology/v2")
-        ]
+        // This does not handle Type 0/1 gas prices.
+        // getGasStationPlugin("https:/\/gasstation-testnet.polygon.technology/v2")
+        ],
     });
-    registerEth("optimism", 10, {
+    registerEth('optimism', 10, {
         ensNetwork: 1,
-        plugins: [
-            getPriorityFeePlugin(BigInt("1000000"))
-        ]
+        plugins: [getPriorityFeePlugin(BigInt('1000000'))],
     });
-    registerEth("optimism-goerli", 420, {});
-    registerEth("xdai", 100, { ensNetwork: 1 });
+    registerEth('optimism-goerli', 420, {});
+    registerEth('xdai', 100, { ensNetwork: 1 });
 }
 
 function copy$2(obj) {
@@ -23774,7 +23734,7 @@ var ethers = /*#__PURE__*/Object.freeze({
     mask: mask,
     namehash: namehash,
     parseEther: parseEther,
-    parseUnits: parseUnits$1,
+    parseUnits: parseUnits,
     pbkdf2: pbkdf2,
     randomBytes: randomBytes,
     recoverAddress: recoverAddress,
@@ -23808,5 +23768,5 @@ var ethers = /*#__PURE__*/Object.freeze({
     zeroPadValue: zeroPadValue
 });
 
-export { AbiCoder, AbstractProvider, AbstractSigner, AlchemyProvider, AnkrProvider, BaseContract, BaseWallet, Block, BrowserProvider, CloudflareProvider, ConstructorFragment, Contract, ContractEventPayload, ContractFactory, ContractTransactionReceipt, ContractTransactionResponse, ContractUnknownEventPayload, EnsPlugin, EnsResolver, ErrorDescription, ErrorFragment, EtherSymbol, EtherscanPlugin, EtherscanProvider, EventFragment, EventLog, EventPayload, FallbackFragment, FallbackProvider, FeeData, FeeDataNetworkPlugin, FetchCancelSignal, FetchRequest, FetchResponse, FetchUrlFeeDataNetworkPlugin, FixedNumber, Fragment, FunctionFragment, GasCostPlugin, HDNodeVoidWallet, HDNodeWallet, Indexed, InfuraProvider, InfuraWebSocketProvider, Interface, IpcSocketProvider, JsonRpcApiProvider, JsonRpcProvider, JsonRpcSigner, LangEn, Log, LogDescription, MaxInt256, MaxUint256, MessagePrefix, MinInt256, Mnemonic, MulticoinProviderPlugin, N$1 as N, NamedFragment, Network, NetworkPlugin, NonceManager, ParamType, PocketProvider, QuickNodeProvider, Result, Signature, SigningKey, SocketBlockSubscriber, SocketEventSubscriber, SocketPendingSubscriber, SocketProvider, SocketSubscriber, StructFragment, Transaction, TransactionDescription, TransactionReceipt, TransactionResponse, Typed, TypedDataEncoder, UndecodedEventLog, UnmanagedSubscriber, Utf8ErrorFuncs, VoidSigner, Wallet, WebSocketProvider, WeiPerEther, Wordlist, WordlistOwl, WordlistOwlA, ZeroAddress, ZeroHash, accessListify, assert$1 as assert, assertArgument, assertArgumentCount, assertNormalize, assertPrivate, checkResultErrors, computeAddress, computeHmac, concat, copyRequest, dataLength, dataSlice, decodeBase58, decodeBase64, decodeBytes32String, decodeRlp, decryptCrowdsaleJson, decryptKeystoreJson, decryptKeystoreJsonSync, defaultPath, defineProperties, dnsEncode, encodeBase58, encodeBase64, encodeBytes32String, encodeRlp, encryptKeystoreJson, encryptKeystoreJsonSync, ensNormalize, ethers, formatEther, formatUnits, fromTwos, getAccountPath, getAddress, getBigInt, getBytes, getBytesCopy, getCreate2Address, getCreateAddress, getDefaultProvider, getIcapAddress, getIndexedAccountPath, getNumber, getUint, hashMessage, hexlify, id, isAddress, isAddressable, isBytesLike, isCallException, isCrowdsaleJson, isError, isHexString, isKeystoreJson, isValidName, keccak256, lock, makeError, mask, namehash, parseEther, parseUnits$1 as parseUnits, pbkdf2, randomBytes, recoverAddress, resolveAddress, resolveProperties, ripemd160, scrypt, scryptSync, sha256, sha512, showThrottleMessage, solidityPacked, solidityPackedKeccak256, solidityPackedSha256, stripZerosLeft, toBeArray, toBeHex, toBigInt, toNumber, toQuantity, toTwos, toUtf8Bytes, toUtf8CodePoints, toUtf8String, uuidV4, verifyMessage, verifyTypedData, version, wordlists, zeroPadBytes, zeroPadValue };
+export { AbiCoder, AbstractProvider, AbstractSigner, AlchemyProvider, AnkrProvider, BaseContract, BaseWallet, Block, BrowserProvider, CloudflareProvider, ConstructorFragment, Contract, ContractEventPayload, ContractFactory, ContractTransactionReceipt, ContractTransactionResponse, ContractUnknownEventPayload, EnsPlugin, EnsResolver, ErrorDescription, ErrorFragment, EtherSymbol, EtherscanPlugin, EtherscanProvider, EventFragment, EventLog, EventPayload, FallbackFragment, FallbackProvider, FeeData, FeeDataNetworkPlugin, FetchCancelSignal, FetchRequest, FetchResponse, FetchUrlFeeDataNetworkPlugin, FixedNumber, Fragment, FunctionFragment, GasCostPlugin, HDNodeVoidWallet, HDNodeWallet, Indexed, InfuraProvider, InfuraWebSocketProvider, Interface, IpcSocketProvider, JsonRpcApiProvider, JsonRpcProvider, JsonRpcSigner, LangEn, Log, LogDescription, MaxInt256, MaxUint256, MessagePrefix, MinInt256, Mnemonic, MulticoinProviderPlugin, N$1 as N, NamedFragment, Network, NetworkPlugin, NonceManager, ParamType, PocketProvider, QuickNodeProvider, Result, Signature, SigningKey, SocketBlockSubscriber, SocketEventSubscriber, SocketPendingSubscriber, SocketProvider, SocketSubscriber, StructFragment, Transaction, TransactionDescription, TransactionReceipt, TransactionResponse, Typed, TypedDataEncoder, UndecodedEventLog, UnmanagedSubscriber, Utf8ErrorFuncs, VoidSigner, Wallet, WebSocketProvider, WeiPerEther, Wordlist, WordlistOwl, WordlistOwlA, ZeroAddress, ZeroHash, accessListify, assert$1 as assert, assertArgument, assertArgumentCount, assertNormalize, assertPrivate, checkResultErrors, computeAddress, computeHmac, concat, copyRequest, dataLength, dataSlice, decodeBase58, decodeBase64, decodeBytes32String, decodeRlp, decryptCrowdsaleJson, decryptKeystoreJson, decryptKeystoreJsonSync, defaultPath, defineProperties, dnsEncode, encodeBase58, encodeBase64, encodeBytes32String, encodeRlp, encryptKeystoreJson, encryptKeystoreJsonSync, ensNormalize, ethers, formatEther, formatUnits, fromTwos, getAccountPath, getAddress, getBigInt, getBytes, getBytesCopy, getCreate2Address, getCreateAddress, getDefaultProvider, getIcapAddress, getIndexedAccountPath, getNumber, getUint, hashMessage, hexlify, id, isAddress, isAddressable, isBytesLike, isCallException, isCrowdsaleJson, isError, isHexString, isKeystoreJson, isValidName, keccak256, lock, makeError, mask, namehash, parseEther, parseUnits, pbkdf2, randomBytes, recoverAddress, resolveAddress, resolveProperties, ripemd160, scrypt, scryptSync, sha256, sha512, showThrottleMessage, solidityPacked, solidityPackedKeccak256, solidityPackedSha256, stripZerosLeft, toBeArray, toBeHex, toBigInt, toNumber, toQuantity, toTwos, toUtf8Bytes, toUtf8CodePoints, toUtf8String, uuidV4, verifyMessage, verifyTypedData, version, wordlists, zeroPadBytes, zeroPadValue };
 //# sourceMappingURL=ethers.js.map
