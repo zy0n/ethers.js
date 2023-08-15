@@ -103,6 +103,7 @@ export declare class FallbackProvider extends AbstractProvider {
      *  for the configuration.
      */
     constructor(providers: Array<AbstractProvider | FallbackProviderConfig>, network?: Networkish, options?: FallbackProviderOptions);
+    get providerType(): "fallback";
     get providerConfigs(): Array<FallbackProviderState>;
     _detectNetwork(): Promise<Network>;
     /**

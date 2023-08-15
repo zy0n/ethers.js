@@ -91,6 +91,9 @@ class EtherscanProvider extends abstract_provider_js_1.AbstractProvider {
         // Test that the network is supported by Etherscan
         this.getBaseUrl();
     }
+    get providerType() {
+        return 'etherscan';
+    }
     /**
      *  Returns the base URL.
      *

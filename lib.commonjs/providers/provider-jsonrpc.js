@@ -304,6 +304,9 @@ class JsonRpcApiProvider extends abstract_provider_js_1.AbstractProvider {
             this.#network = staticNetwork;
         }
     }
+    get providerType() {
+        return 'jsonrpc';
+    }
     /**
      *  Returns the value associated with the option %%key%%.
      *

@@ -216,6 +216,16 @@ class AbstractProvider {
      */
     get provider() { return this; }
     /**
+     *  Returns a string that identifies the AbstractProvider subclass, for
+     *  better duck typing.
+     */
+    get providerType() {
+        (0, index_js_6.assert)(false, "not implemented yet", "NOT_IMPLEMENTED", {
+            operation: "providerType"
+        });
+        return "";
+    }
+    /**
      *  Returns all the registered plug-ins.
      */
     get plugins() {

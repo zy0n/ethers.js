@@ -87,6 +87,9 @@ export class EtherscanProvider extends AbstractProvider {
         // Test that the network is supported by Etherscan
         this.getBaseUrl();
     }
+    get providerType() {
+        return 'etherscan';
+    }
     /**
      *  Returns the base URL.
      *

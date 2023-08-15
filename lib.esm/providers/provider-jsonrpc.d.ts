@@ -211,6 +211,7 @@ export declare class JsonRpcSigner extends AbstractSigner<JsonRpcApiProvider> {
 export declare abstract class JsonRpcApiProvider extends AbstractProvider {
     #private;
     constructor(network?: Networkish, options?: JsonRpcApiProviderOptions);
+    get providerType(): "jsonrpc";
     /**
      *  Returns the value associated with the option %%key%%.
      *

@@ -269,6 +269,9 @@ class FallbackProvider extends abstract_provider_js_1.AbstractProvider {
         this.eventWorkers = 1;
         (0, index_js_1.assertArgument)(this.quorum <= this.#configs.reduce((a, c) => (a + c.weight), 0), "quorum exceed provider wieght", "quorum", this.quorum);
     }
+    get providerType() {
+        return 'fallback';
+    }
     get providerConfigs() {
         return this.#configs.map((c) => {
             const result = Object.assign({}, c);

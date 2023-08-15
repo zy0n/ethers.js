@@ -241,6 +241,7 @@ export type AbstractProviderOptions = {
     cacheTimeout?: number;
     pollingInterval?: number;
 };
+type ProviderType = "jsonrpc" | "etherscan" | "fallback" | "";
 /**
  *  An **AbstractProvider** provides a base class for other sub-classes to
  *  implement the [[Provider]] API by normalizing input arguments and
@@ -261,6 +262,11 @@ export declare class AbstractProvider implements Provider {
      *  the [[ContractRunner]] interface.
      */
     get provider(): this;
+    /**
+     *  Returns a string that identifies the AbstractProvider subclass, for
+     *  better duck typing.
+     */
+    get providerType(): ProviderType;
     /**
      *  Returns all the registered plug-ins.
      */
@@ -446,4 +452,5 @@ export declare class AbstractProvider implements Provider {
      */
     resume(): void;
 }
+export {};
 //# sourceMappingURL=abstract-provider.d.ts.map

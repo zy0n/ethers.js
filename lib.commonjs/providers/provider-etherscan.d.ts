@@ -87,6 +87,7 @@ export declare class EtherscanProvider extends AbstractProvider {
      *  Creates a new **EtherscanBaseProvider**.
      */
     constructor(_network?: Networkish, _apiKey?: string);
+    get providerType(): "etherscan";
     /**
      *  Returns the base URL.
      *

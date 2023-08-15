@@ -3,7 +3,7 @@ const __$G = (typeof globalThis !== 'undefined' ? globalThis: typeof window !== 
 /**
  *  The current version of Ethers.
  */
-const version = "6.7.5";
+const version = "6.7.6";
 
 /**
  *  Property helper functions.
@@ -16799,6 +16799,16 @@ class AbstractProvider {
      */
     get provider() { return this; }
     /**
+     *  Returns a string that identifies the AbstractProvider subclass, for
+     *  better duck typing.
+     */
+    get providerType() {
+        assert$1(false, "not implemented yet", "NOT_IMPLEMENTED", {
+            operation: "providerType"
+        });
+        return "";
+    }
+    /**
      *  Returns all the registered plug-ins.
      */
     get plugins() {
@@ -18676,6 +18686,9 @@ class JsonRpcApiProvider extends AbstractProvider {
             this.#network = staticNetwork;
         }
     }
+    get providerType() {
+        return 'jsonrpc';
+    }
     /**
      *  Returns the value associated with the option %%key%%.
      *
@@ -19558,6 +19571,9 @@ class EtherscanProvider extends AbstractProvider {
         defineProperties(this, { apiKey, network });
         // Test that the network is supported by Etherscan
         this.getBaseUrl();
+    }
+    get providerType() {
+        return 'etherscan';
     }
     /**
      *  Returns the base URL.
@@ -20830,6 +20846,9 @@ class FallbackProvider extends AbstractProvider {
         this.eventQuorum = 1;
         this.eventWorkers = 1;
         assertArgument(this.quorum <= this.#configs.reduce((a, c) => (a + c.weight), 0), "quorum exceed provider wieght", "quorum", this.quorum);
+    }
+    get providerType() {
+        return 'fallback';
     }
     get providerConfigs() {
         return this.#configs.map((c) => {

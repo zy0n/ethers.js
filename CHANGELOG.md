@@ -3,9 +3,12 @@ Change Log
 
 This change log is maintained by `src.ts/_admin/update-changelog.ts` but may also be manually updated.
 
-ethers/v6.7.5 (2023-08-10 13:24)
+ethers/v6.7.6 (2023-08-15 11:10)
 --------------------------------
 
+  - Merge: 1c5f6181 bef24cff     Merge branch 'provider-subclass-type' into main ([2de29ee](https://github.com/ethers-io/ethers.js/commit/2de29eecbcc38278addc2be966797986b006a72a)).
+  - add providerType getter to AbstractProvider ([bef24cf](https://github.com/ethers-io/ethers.js/commit/bef24cffe22c062cafbb8f9e31e392bba363f3db)).
+  - Add better error message for could-not-coalesce ([1c5f618](https://github.com/ethers-io/ethers.js/commit/1c5f6181ca4edfbe84e5afecb7cd9addc2284b1c)).
   - 6.7.3 - Add all build files ([1fdd1b5](https://github.com/ethers-io/ethers.js/commit/1fdd1b5705d3a44e407fa9eb00f7946fe4ac58f1)).
   - Bypass gas station plugin for polygon ([5d3a0fc](https://github.com/ethers-io/ethers.js/commit/5d3a0fc8d3f009ef73accb537b2ae2a9b63f95f9)).
   - Merge: e506f16c 786f4c04     Merge branch 'fix-fallback-provider-stalling' ([26138c1](https://github.com/ethers-io/ethers.js/commit/26138c119e7be26892da46d502fd8b7d36322232)).
@@ -14,7 +17,6 @@ ethers/v6.7.5 (2023-08-10 13:24)
   - Prefer non-errors in FallbackProvider checkQuorum ([f28161e](https://github.com/ethers-io/ethers.js/commit/f28161e68b67568e9b7b497a7af2da725e78776e)).
   - Merge: 2d8a8141 c5cb7cd7     Merge remote-tracking branch 'upstream/main' ([260bc64](https://github.com/ethers-io/ethers.js/commit/260bc64fb5db9a27a3ac8e975249273ce40ae96e)).
   - Add "Sync Fork" GitHub Action ([2d8a814](https://github.com/ethers-io/ethers.js/commit/2d8a81411e1d3fe0aca4d6a0a61b0ddeae05f422)).
-  - tests: add faucet address to output for refilling ([e45bc77](https://github.com/ethers-io/ethers.js/commit/e45bc77cd921387ebcf8a3e1e2fcdf97b00d17f2)).
   - Merge: 2d0c91f9 29c466a0     Merge branch 'fix-fallback-provider-runner-error' ([4dba112](https://github.com/ethers-io/ethers.js/commit/4dba112ae0c4a618ccdd4ddbf4e77825ed9d4794)).
   - Fix FallbackProvider to better handle errors ([29c466a](https://github.com/ethers-io/ethers.js/commit/29c466a0ab5e56b9d5b1fab724f4a74065834e40)).
   - Merge: 4f5aab60 4466ef08     Merge branch 'fix-fallback-provider-stalling' ([420e5fa](https://github.com/ethers-io/ethers.js/commit/420e5fab3e2fdb643d77a5fd83b90e508e152f11)).
@@ -23,6 +25,15 @@ ethers/v6.7.5 (2023-08-10 13:24)
   - Fix FallbackProvider stalling to be sequential ([4466ef0](https://github.com/ethers-io/ethers.js/commit/4466ef0808d3c5260f08dc2771cfb1a601f17a20)).
   - Fix FallbackProvider priority sorting ([674d6ed](https://github.com/ethers-io/ethers.js/commit/674d6edb89daa9a332f25d6fcca6f5f4702b6ae9)).
   - Fix concurrent events in PollingEventSubscriber ([259237f](https://github.com/ethers-io/ethers.js/commit/259237f2fdec08623e895b2448356c81768d44cd)).
+
+ethers/v6.7.1 (2023-08-15 10:42)
+--------------------------------
+
+  - Prevent destroyed providers from emitting network detection errors ([7d41730](https://github.com/ethers-io/ethers.js/commit/7d4173049edc3b4ff2de1971c3ecca3b08588651)).
+  - Fixed VSCode lint vs tsc discrepency ([#4153](https://github.com/ethers-io/ethers.js/issues/4153), [#4156](https://github.com/ethers-io/ethers.js/issues/4156), [#4158](https://github.com/ethers-io/ethers.js/issues/4158), [#4159](https://github.com/ethers-io/ethers.js/issues/4159); [203dfc3](https://github.com/ethers-io/ethers.js/commit/203dfc33b9c8e72c9cdfe0a349ac763ef17a4484)).
+  - Fix VSCode reported lint issues ([#4153](https://github.com/ethers-io/ethers.js/issues/4153), [#4156](https://github.com/ethers-io/ethers.js/issues/4156), [#4158](https://github.com/ethers-io/ethers.js/issues/4158), [#4159](https://github.com/ethers-io/ethers.js/issues/4159); [4eb84da](https://github.com/ethers-io/ethers.js/commit/4eb84da865a82a27c5113c38102b6b710096958e)).
+  - Add gasPrice to Polygon feeData for type 0 and type 1 legacy transactions ([#4315](https://github.com/ethers-io/ethers.js/issues/4315); [0df3ab9](https://github.com/ethers-io/ethers.js/commit/0df3ab93137039de1e1986bbfe9a5b32ceffa8a4)).
+  - tests: add faucet address to output for refilling ([e45bc77](https://github.com/ethers-io/ethers.js/commit/e45bc77cd921387ebcf8a3e1e2fcdf97b00d17f2)).
 
 ethers/v6.7.0 (2023-08-02 23:52)
 --------------------------------
