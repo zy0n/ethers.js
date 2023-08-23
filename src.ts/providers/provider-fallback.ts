@@ -749,7 +749,7 @@ export class FallbackProvider extends AbstractProvider {
         // a cost on the user, so spamming is safe-ish. Just send it to
         // every backend.
         if (req.method === "broadcastTransaction") {
-            const results = await Promise.all(this.#configs.map(async ({ provider, weight }) => {
+            const results = await Promise.allSettled(this.#configs.map(async ({ provider, weight }) => {
                 try {
                     const result = await provider._perform(req);
                     return Object.assign(normalizeResult({ result }), { weight });
@@ -758,7 +758,14 @@ export class FallbackProvider extends AbstractProvider {
                 }
             }));
 
-            const result = getAnyResult(this.quorum, results);
+            const parsedResults: TallyResult[] = [];
+            results.forEach((result) => {
+                if (result.status === 'fulfilled') {
+                    parsedResults.push(result.value);
+                }
+            })
+
+            const result = getAnyResult(this.quorum, parsedResults);
             assert(result !== undefined, "problem multi-broadcasting", "SERVER_ERROR", {
                 request: "%sub-requests",
                 info: { request: req, results: results.map(stringify) }
