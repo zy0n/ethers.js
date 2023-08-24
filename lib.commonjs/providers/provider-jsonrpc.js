@@ -265,8 +265,12 @@ class JsonRpcApiProvider extends abstract_provider_js_1.AbstractProvider {
                             }
                             // The response is an error
                             if ("error" in resp) {
+                                const error = (0, index_js_5.makeError)("missing response for request", "BAD_DATA", {
+                                    value: result, info: { payload }
+                                });
+                                reject(undefined)
                                 continue;
-                                reject(this.getRpcError(payload, resp));
+                                // reject(this.getRpcError(payload, resp));
                             }
                             // All good; send the result
                             resolve(resp.result);
