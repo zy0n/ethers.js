@@ -264,6 +264,30 @@ function checkQuorum(quorum: number, results: Array<TallyResult>): any | Error {
     return undefined;
 }
 
+function checkQuorumNoError(quorum: number, results: Array<TallyResult>): any {
+    const tally: Map<string, { value: any, weight: number }> = new Map();
+    for (const { value, tag, weight } of results) {
+        const t = tally.get(tag) || { value, weight: 0 };
+        t.weight += weight;
+        tally.set(tag, t);
+    }
+
+    let best: null | { value: any, weight: number } = null;
+
+    for (const r of tally.values()) {
+        if (!(r.value instanceof Error)) {
+            const betterThanBest = best && r.weight > best.weight;
+            if (r.weight >= quorum && (!best || betterThanBest)) {
+                best = r;
+            }
+        }
+    }
+
+    if (best) { return best.value; }
+
+    return undefined;
+}
+
 function getMedian(quorum: number, results: Array<TallyResult>): undefined | bigint | Error {
     let resultWeight = 0;
 
@@ -306,7 +330,7 @@ function getMedian(quorum: number, results: Array<TallyResult>): undefined | big
 
 function getAnyResult(quorum: number, results: Array<TallyResult>): undefined | any | Error {
     // If any value or error meets quorum, that is our preferred result
-    const result = checkQuorum(quorum, results);
+    const result = checkQuorumNoError(quorum, results);
     if (result !== undefined) { return result; }
 
     // Otherwise, do we have any result?
